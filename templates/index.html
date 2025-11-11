@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindi Sarcasm Detection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .detect-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .detect-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .clear-btn {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .clear-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .result-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .result-section.show {
+            display: block;
+        }
+        
+        .result-header {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .sarcasm-level {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .level-value {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .level-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .level-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+            border-radius: 15px;
+        }
+        
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .detail-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .detail-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .sarcastic {
+            color: #e74c3c;
+        }
+        
+        .not-sarcastic {
+            color: #27ae60;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .examples {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .examples h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .example-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .example-item:hover {
+            background: #e8e8e8;
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Hindi Sarcasm Detection</h1>
+        
+        <div class="input-section">
+            <label for="textInput">Enter Hindi Text:</label>
+            <textarea id="textInput" placeholder="Type or paste Hindi text here (Devanagari or Romanized)..." rows="5"></textarea>
+        </div>
+        
+        <div class="button-group">
+            <button class="detect-btn" onclick="detectSarcasm()">Detect Sarcasm</button>
+            <button class="clear-btn" onclick="clearInput()">Clear</button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing text...</p>
+        </div>
+        
+        <div class="result-section" id="resultSection">
+            <div class="result-header">Detection Result</div>
+            <div class="sarcasm-level">
+                <div class="level-value" id="levelValue">0%</div>
+                <div class="level-bar">
+                    <div class="level-fill" id="levelFill" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="result-details">
+                <div class="detail-item">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value" id="status">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Confidence</div>
+                    <div class="detail-value" id="confidence">-</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="examples">
+            <h3>Example Texts (Click to try):</h3>
+            <div class="example-item" onclick="setExample('वाह! क्या बात है, तुमने तो कमाल कर दिया!')">
+                वाह! क्या बात है, तुमने तो कमाल कर दिया!
+            </div>
+            <div class="example-item" onclick="setExample('Wah! Kya baat hai, tumne to kamaal kar diya!')">
+                Wah! Kya baat hai, tumne to kamaal kar diya!
+            </div>
+            <div class="example-item" onclick="setExample('बहुत अच्छा काम किया है तुमने')">
+                बहुत अच्छा काम किया है तुमने
+            </div>
+            <div class="example-item" onclick="setExample('आज मौसम बहुत सुहावना है')">
+                आज मौसम बहुत सुहावना है
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function setExample(text) {
+            document.getElementById('textInput').value = text;
+        }
+        
+        function clearInput() {
+            document.getElementById('textInput').value = '';
+            document.getElementById('resultSection').classList.remove('show');
+        }
+        
+        async function detectSarcasm() {
+            const text = document.getElementById('textInput').value.trim();
+            
+            if (!text) {
+                alert('Please enter some text!');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('resultSection').classList.remove('show');
+            
+            try {
+                const response = await fetch('/api/detect', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayResult(result);
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+            }
+        }
+        
+        function displayResult(result) {
+            // Update level
+            document.getElementById('levelValue').textContent = result.sarcasm_level + '%';
+            document.getElementById('levelFill').style.width = result.sarcasm_level + '%';
+            
+            // Update status
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = result.is_sarcastic ? 'Sarcastic' : 'Not Sarcastic';
+            statusEl.className = 'detail-value ' + (result.is_sarcastic ? 'sarcastic' : 'not-sarcastic');
+            
+            // Update confidence
+            document.getElementById('confidence').textContent = (result.confidence * 100).toFixed(1) + '%';
+            
+            // Show result
+            document.getElementById('resultSection').classList.add('show');
+        }
+        
+        // Allow Enter key to trigger detection (Ctrl+Enter)
+        document.getElementById('textInput').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                detectSarcasm();
+            }
+        });
+    </script>
+</body>
+</html>
+

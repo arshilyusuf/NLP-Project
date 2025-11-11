@@ -1,0 +1,65 @@
+======================================================================
+HINDI SARCASM DETECTION MODEL - PERFORMANCE METRICS
+======================================================================
+
+
+📊 TEST SET PERFORMANCE:
+   Accuracy:  0.9858 (98.58%)
+   Precision: 0.9714 (97.14%)
+   Recall:    0.9921 (99.21%)
+   F1-Score:  0.9816 (98.16%)
+   ROC-AUC:   0.9968 (99.68%)
+
+======================================================================
+DETAILED CLASSIFICATION REPORT (Test Set)
+======================================================================
+               precision    recall  f1-score   support
+
+Not Sarcastic     0.9950    0.9818    0.9884      1430
+    Sarcastic     0.9714    0.9921    0.9816       889
+
+     accuracy                         0.9858      2319
+    macro avg     0.9832    0.9870    0.9850      2319
+ weighted avg     0.9860    0.9858    0.9858      2319
+
+
+======================================================================
+CONFUSION MATRIX (Test Set)
+======================================================================
+
+                Predicted
+              Not Sarc  Sarcastic
+Actual Not Sarc   1404        26
+      Sarcastic      7       882
+
+----------------------------------------------------------------------
+Interpretation:
+  True Negatives (TN):  1404 - Correctly identified as Not Sarcastic
+  False Positives (FP): 26 - Incorrectly identified as Sarcastic
+  False Negatives (FN): 7 - Missed Sarcastic texts
+  True Positives (TP):  882 - Correctly identified as Sarcastic
+
+======================================================================
+PER-CLASS PERFORMANCE (Test Set)
+======================================================================
+
+Not Sarcastic Class:
+   Precision: 0.9950 (99.50%)
+   Recall:    0.9818 (98.18%)
+   F1-Score:  0.9884 (98.84%)
+
+Sarcastic Class:
+   Precision: 0.9714 (97.14%)
+   Recall:    0.9921 (99.21%)
+   F1-Score:  0.9816 (98.16%)
+
+======================================================================
+MODEL SUMMARY
+======================================================================
+✅ Overall Test Accuracy: 98.58%
+✅ Model Type: Logistic Regression with TF-IDF features
+✅ Feature Extraction: Character n-grams (1-4 grams)
+✅ Max Features: 10,000
+✅ Test Samples: 2319
+✅ Performance Level: Excellent
+======================================================================
