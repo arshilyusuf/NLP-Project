@@ -12,7 +12,7 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'segoe ui', tahoma, geneva, verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -114,8 +114,8 @@
             margin-top: 30px;
             padding: 25px;
             background: #f8f9fa;
-            border-radius: 10px;
             border-left: 5px solid #667eea;
+            border-radius: 10px;
         }
         
         .result-section.show {
@@ -245,25 +245,25 @@
 </head>
 <body>
     <div class="container">
-        <h1>🔍 Hindi Sarcasm Detection</h1>
+        <h1>🔍 hindi sarcasm detection</h1>
         
         <div class="input-section">
-            <label for="textInput">Enter Hindi Text:</label>
-            <textarea id="textInput" placeholder="Type or paste Hindi text here (Devanagari or Romanized)..." rows="5"></textarea>
+            <label for="textInput">enter hindi text:</label>
+            <textarea id="textInput" placeholder="type or paste hindi text here (devanagari or romanized)..." rows="5"></textarea>
         </div>
         
         <div class="button-group">
-            <button class="detect-btn" onclick="detectSarcasm()">Detect Sarcasm</button>
-            <button class="clear-btn" onclick="clearInput()">Clear</button>
+            <button class="detect-btn" onclick="detectSarcasm()">detect sarcasm</button>
+            <button class="clear-btn" onclick="clearInput()">clear</button>
         </div>
         
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p>Analyzing text...</p>
+            <p>analyzing text...</p>
         </div>
         
         <div class="result-section" id="resultSection">
-            <div class="result-header">Detection Result</div>
+            <div class="result-header">detection result</div>
             <div class="sarcasm-level">
                 <div class="level-value" id="levelValue">0%</div>
                 <div class="level-bar">
@@ -272,18 +272,18 @@
             </div>
             <div class="result-details">
                 <div class="detail-item">
-                    <div class="detail-label">Status</div>
+                    <div class="detail-label">status</div>
                     <div class="detail-value" id="status">-</div>
                 </div>
                 <div class="detail-item">
-                    <div class="detail-label">Confidence</div>
+                    <div class="detail-label">confidence</div>
                     <div class="detail-value" id="confidence">-</div>
                 </div>
             </div>
         </div>
         
         <div class="examples">
-            <h3>Example Texts (Click to try):</h3>
+            <h3>example texts (click to try):</h3>
             <div class="example-item" onclick="setExample('वाह! क्या बात है, तुमने तो कमाल कर दिया!')">
                 वाह! क्या बात है, तुमने तो कमाल कर दिया!
             </div>
@@ -313,11 +313,11 @@
             const text = document.getElementById('textInput').value.trim();
             
             if (!text) {
-                alert('Please enter some text!');
+                alert('please enter some text!');
                 return;
             }
             
-            // Show loading
+            // show loading state
             document.getElementById('loading').classList.add('show');
             document.getElementById('resultSection').classList.remove('show');
             
@@ -335,33 +335,33 @@
                 if (response.ok) {
                     displayResult(result);
                 } else {
-                    alert('Error: ' + result.error);
+                    alert('error: ' + result.error);
                 }
             } catch (error) {
-                alert('Error: ' + error.message);
+                alert('error: ' + error.message);
             } finally {
                 document.getElementById('loading').classList.remove('show');
             }
         }
         
         function displayResult(result) {
-            // Update level
-            document.getElementById('levelValue').textContent = result.sarcasm_level + '%';
-            document.getElementById('levelFill').style.width = result.sarcasm_level + '%';
+            // update sarcasm level
+            document.getElementById('levelValue').textContent = (result.sarcasm_score * 100).toFixed(1) + '%';
+            document.getElementById('levelFill').style.width = (result.sarcasm_score * 100).toFixed(1) + '%';
             
-            // Update status
+            // update status
             const statusEl = document.getElementById('status');
-            statusEl.textContent = result.is_sarcastic ? 'Sarcastic' : 'Not Sarcastic';
-            statusEl.className = 'detail-value ' + (result.is_sarcastic ? 'sarcastic' : 'not-sarcastic');
+            statusEl.textContent = result.sarcastic ? 'sarcastic' : 'not sarcastic';
+            statusEl.className = 'detail-value ' + (result.sarcastic ? 'sarcastic' : 'not-sarcastic');
             
-            // Update confidence
+            // update confidence
             document.getElementById('confidence').textContent = (result.confidence * 100).toFixed(1) + '%';
             
-            // Show result
+            // show result section
             document.getElementById('resultSection').classList.add('show');
         }
         
-        // Allow Enter key to trigger detection (Ctrl+Enter)
+        // allow enter key to trigger detection (ctrl+enter)
         document.getElementById('textInput').addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.key === 'Enter') {
                 detectSarcasm();

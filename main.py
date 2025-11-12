@@ -1,8 +1,3 @@
-"""
-Main Application for Hindi Sarcasm Detection
-Provides both CLI and Web interface
-"""
-
 import argparse
 import sys
 from model import HindiSarcasmDetector
@@ -10,25 +5,20 @@ from preprocess import preprocess_hindi_text, detect_script
 
 
 def print_result(text, result):
-    """
-    Pretty print the detection result
-    """
+    # pretty print the detection result
     print("\n" + "="*60)
     print("HINDI SARCASM DETECTION RESULT")
     print("="*60)
     print(f"Input Text: {text}")
     print(f"Script Type: {detect_script(text)}")
-    print(f"\nSarcasm Level: {result['sarcasm_level']}%")
-    print(f"Is Sarcastic: {'Yes' if result['is_sarcastic'] else 'No'}")
+    print(f"\nSarcasm Level: {result['sarcasm_score']*100:.1f}%")
+    print(f"Is Sarcastic: {'Yes' if result['sarcastic'] else 'No'}")
     print(f"Confidence: {result['confidence']*100:.1f}%")
-    print(f"Message: {result['message']}")
     print("="*60 + "\n")
 
 
 def interactive_mode():
-    """
-    Interactive CLI mode
-    """
+    # interactive cli mode
     print("\n" + "="*60)
     print("Hindi Sarcasm Detection - Interactive Mode")
     print("="*60)
@@ -60,9 +50,7 @@ def interactive_mode():
 
 
 def single_text_mode(text):
-    """
-    Process a single text input
-    """
+    # process a single text input
     detector = HindiSarcasmDetector()
     result = detector.detect_sarcasm_level(text)
     print_result(text, result)
@@ -70,9 +58,7 @@ def single_text_mode(text):
 
 
 def file_mode(file_path):
-    """
-    Process texts from a file (one per line)
-    """
+    # process texts from a file
     detector = HindiSarcasmDetector()
     
     try:
@@ -88,17 +74,17 @@ def file_mode(file_path):
                 print(f"\n[{i}/{len(lines)}] Processing: {text[:50]}...")
                 result = detector.detect_sarcasm_level(text)
                 results.append(result)
-                print(f"Result: {result['message']}")
+                print(f"Result: {'Sarcastic' if result['sarcastic'] else 'Not Sarcastic'} (Score: {result['sarcasm_score']:.2f})")
         
         print("\n" + "="*60)
         print("SUMMARY")
         print("="*60)
-        sarcastic_count = sum(1 for r in results if r['is_sarcastic'])
-        avg_level = sum(r['sarcasm_level'] for r in results) / len(results) if results else 0
+        sarcastic_count = sum(1 for r in results if r['sarcastic'])
+        avg_level = sum(r['sarcasm_score'] for r in results) / len(results) if results else 0
         print(f"Total texts: {len(results)}")
         print(f"Sarcastic: {sarcastic_count}")
         print(f"Non-sarcastic: {len(results) - sarcastic_count}")
-        print(f"Average sarcasm level: {avg_level:.1f}%")
+        print(f"Average sarcasm score: {avg_level:.1f}")
         print("="*60 + "\n")
         
     except FileNotFoundError:
@@ -110,42 +96,39 @@ def file_mode(file_path):
 
 
 def main():
-    """
-    Main entry point
-    """
+    # main entry point
     parser = argparse.ArgumentParser(
-        description='Hindi Sarcasm Detection Tool',
+        description='hindi sarcasm detection tool',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Examples:
+examples:
   python main.py -t "वाह! क्या बात है"
-  python main.py -t "Wah! Kya baat hai"
+  python main.py -t "wah! kya baat hai"
   python main.py -i
   python main.py -f input.txt
-        """
+"""
     )
     
     parser.add_argument(
         '-t', '--text',
         type=str,
-        help='Input Hindi text to analyze (Devanagari or Romanized)'
+        help='input hindi text to analyze (devanagari or romanized)'
     )
     
     parser.add_argument(
         '-i', '--interactive',
         action='store_true',
-        help='Run in interactive mode'
+        help='run in interactive mode'
     )
     
     parser.add_argument(
         '-f', '--file',
         type=str,
-        help='Path to file containing texts (one per line)'
+        help='path to file containing texts (one per line)'
     )
     
     args = parser.parse_args()
     
-    # Determine mode
     if args.interactive:
         interactive_mode()
     elif args.file:
@@ -153,7 +136,6 @@ Examples:
     elif args.text:
         single_text_mode(args.text)
     else:
-        # Default to interactive mode
         interactive_mode()
 
 

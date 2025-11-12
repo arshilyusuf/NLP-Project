@@ -2,25 +2,46 @@
 HINDI SARCASM DETECTION MODEL - PERFORMANCE METRICS
 ======================================================================
 
+📦 Loading trained model...
+✓ Model loaded successfully!
+
+📊 Loading test dataset from {test_csv_path}...
+✓ Loaded 2319 test samples
+
+🔧 Preprocessing texts...
+
+📈 Test samples: 2319
+[NLP] Extracting comprehensive NLP features for test set...
+Engineered feature dimensions for test set: (2319, 24)
+
+🔄 Transforming texts to TF-IDF features...
+TF-IDF feature dimensions for test set: (2319, 10000)
+Combined feature dimensions for test set: (2319, 10024)
+
+🔮 Making predictions...
+
+======================================================================
+PERFORMANCE METRICS
+======================================================================
 
 📊 TEST SET PERFORMANCE:
-   Accuracy:  0.9858 (98.58%)
-   Precision: 0.9714 (97.14%)
-   Recall:    0.9921 (99.21%)
-   F1-Score:  0.9816 (98.16%)
-   ROC-AUC:   0.9968 (99.68%)
+   Accuracy:  0.9733 (97.33%)
+   Precision: 0.9569 (95.69%)
+   Recall:    0.9741 (97.41%)
+   F1-Score:  0.9654 (96.54%)
+   ROC-AUC:   0.9908 (99.08%)
 
 ======================================================================
 DETAILED CLASSIFICATION REPORT (Test Set)
 ======================================================================
                precision    recall  f1-score   support
 
-Not Sarcastic     0.9950    0.9818    0.9884      1430
-    Sarcastic     0.9714    0.9921    0.9816       889
+Not Sarcastic     0.9837    0.9727    0.9782      1430
+    Sarcastic     0.9569    0.9741    0.9654       889
 
-     accuracy                         0.9858      2319
-    macro avg     0.9832    0.9870    0.9850      2319
- weighted avg     0.9860    0.9858    0.9858      2319
+     accuracy                         0.9733      2319
+    macro avg     0.9703    0.9734    0.9718      2319
+ weighted avg     0.9734    0.9733    0.9733      2319
 
 
 ======================================================================
@@ -29,34 +50,34 @@ CONFUSION MATRIX (Test Set)
 
                 Predicted
               Not Sarc  Sarcastic
-Actual Not Sarc   1404        26
-      Sarcastic      7       882
+Actual Not Sarc   1391        39
+      Sarcastic     23       866
 
 ----------------------------------------------------------------------
 Interpretation:
-  True Negatives (TN):  1404 - Correctly identified as Not Sarcastic
-  False Positives (FP): 26 - Incorrectly identified as Sarcastic
-  False Negatives (FN): 7 - Missed Sarcastic texts
-  True Positives (TP):  882 - Correctly identified as Sarcastic
+  True Negatives (TN):  1391 - Correctly identified as Not Sarcastic
+  False Positives (FP): 39 - Incorrectly identified as Sarcastic
+  False Negatives (FN): 23 - Missed Sarcastic texts
+  True Positives (TP):  866 - Correctly identified as Sarcastic
 
 ======================================================================
 PER-CLASS PERFORMANCE (Test Set)
 ======================================================================
 
 Not Sarcastic Class:
-   Precision: 0.9950 (99.50%)
-   Recall:    0.9818 (98.18%)
-   F1-Score:  0.9884 (98.84%)
+   Precision: 0.9837 (98.37%)
+   Recall:    0.9727 (97.27%)
+   F1-Score:  0.9782 (97.82%)
 
 Sarcastic Class:
-   Precision: 0.9714 (97.14%)
-   Recall:    0.9921 (99.21%)
-   F1-Score:  0.9816 (98.16%)
+   Precision: 0.9569 (95.69%)
+   Recall:    0.9741 (97.41%)
+   F1-Score:  0.9654 (96.54%)
 
 ======================================================================
 MODEL SUMMARY
 ======================================================================
-✅ Overall Test Accuracy: 98.58%
+✅ Overall Test Accuracy: 97.33%
 ✅ Model Type: Logistic Regression with TF-IDF features
 ✅ Feature Extraction: Character n-grams (1-4 grams)
 ✅ Max Features: 10,000

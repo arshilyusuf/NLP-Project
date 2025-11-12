@@ -21,6 +21,11 @@ import joblib
 import os
 import re
 from train_model import HindiSarcasmTrainer
+from preprocess import preprocess_hindi_text
+from nlp_features import extract_all_features, features_to_vector
+from transformers import pipeline, AutoTokenizer, AlbertForSequenceClassification, AlbertTokenizer
+import torch
+from scipy.sparse import hstack
 
 
 def load_dataset(csv_path):
@@ -56,6 +61,58 @@ def load_dataset(csv_path):
 def show_performance(test_csv_path='dataset/test_set.csv', output_file_path=None):
     """Display model performance metrics"""
     
+    # Initialize sentiment pipeline for evaluation
+    sentiment_model = None
+    sentiment_tokenizer = None
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    try:
+        model_name = "ai4bharat/indic-bert"
+        sentiment_tokenizer = AlbertTokenizer.from_pretrained(model_name)
+        sentiment_model = AlbertForSequenceClassification.from_pretrained(model_name).to(device)
+        print("Sentiment analysis model and tokenizer loaded for evaluation.")
+    except Exception as e:
+        print(f"Could not load sentiment analysis model for evaluation: {e}")
+        print("Sentiment analysis will be skipped during evaluation.")
+
+    # Helper function for sentiment scoring (similar to train_model.py)
+    def _get_sentiment_score_eval(text):
+        if sentiment_model is None or sentiment_tokenizer is None:
+            return None
+        
+        try:
+            inputs = sentiment_tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512).to(device)
+            with torch.no_grad():
+                outputs = sentiment_model(**inputs)
+                logits = outputs.logits
+                probabilities = torch.softmax(logits, dim=1).cpu().numpy()[0]
+
+            # Assuming 0: NEGATIVE, 1: NEUTRAL, 2: POSITIVE for IndicBERT fine-tuned for sentiment
+            if len(probabilities) == 3:
+                negative_prob = probabilities[0]
+                neutral_prob = probabilities[1]
+                positive_prob = probabilities[2]
+                
+                max_prob_idx = np.argmax(probabilities)
+                if max_prob_idx == 0:  # Negative
+                    return {'label': 'NEGATIVE', 'score': negative_prob}
+                elif max_prob_idx == 1: # Neutral
+                    return {'label': 'NEUTRAL', 'score': neutral_prob}
+                else: # Positive
+                    return {'label': 'POSITIVE', 'score': positive_prob}
+            elif len(probabilities) == 2:
+                negative_prob = probabilities[0]
+                positive_prob = probabilities[1]
+                if positive_prob > negative_prob:
+                    return {'label': 'POSITIVE', 'score': positive_prob}
+                else:
+                    return {'label': 'NEGATIVE', 'score': negative_prob}
+            else:
+                return None
+
+        except Exception as e:
+            print_output(f"Error during sentiment prediction for evaluation: {e}")
+            return None
+
     if output_file_path:
         f = open(output_file_path, 'w', encoding='utf-8')
         def print_to_file(*args, **kwargs):
@@ -90,19 +147,34 @@ def show_performance(test_csv_path='dataset/test_set.csv', output_file_path=None
     
     # Preprocess texts
     print_output("\n🔧 Preprocessing texts...")
-    trainer = HindiSarcasmTrainer()
-    X_test_processed = trainer.preprocess_texts(X_test_raw)
+    # Use preprocess_hindi_text from preprocess.py for consistent preprocessing
+    X_test_processed = [preprocess_hindi_text(text) for text in X_test_raw]
     
     print_output(f"\n📈 Test samples: {len(X_test_processed)}")
+
+    # Extract all NLP features (including sentiment if available)
+    print_output("[NLP] Extracting comprehensive NLP features for test set...")
+    X_test_engineered_features = []
+    for i, text in enumerate(X_test_processed):
+        sentiment_score = _get_sentiment_score_eval(text) if sentiment_model else None
+        X_test_engineered_features.append(features_to_vector(extract_all_features(text, sentiment_score)))
     
-    # Transform texts
+    X_test_engineered_features = np.array(X_test_engineered_features)
+    print_output(f"Engineered feature dimensions for test set: {X_test_engineered_features.shape}")
+    
+    # Transform texts to TF-IDF features
     print_output("\n🔄 Transforming texts to TF-IDF features...")
     X_test_tfidf = vectorizer.transform(X_test_processed)
+    print_output(f"TF-IDF feature dimensions for test set: {X_test_tfidf.shape}")
+
+    # Combine TF-IDF features with engineered features
+    X_test_final = hstack([X_test_tfidf, X_test_engineered_features])
+    print_output(f"Combined feature dimensions for test set: {X_test_final.shape}")
     
     # Predictions
     print_output("\n🔮 Making predictions...")
-    y_test_pred = model.predict(X_test_tfidf)
-    y_test_proba = model.predict_proba(X_test_tfidf)[:, 1]
+    y_test_pred = model.predict(X_test_final)
+    y_test_proba = model.predict_proba(X_test_final)[:, 1]
     
     # Calculate metrics
     print_output("\n" + "="*70)
